@@ -1,20 +1,11 @@
-/*
-Name of Program: Sudoku Solver
-Programmer Name: Kareem Ibrahim
-Description: Program made to solve any 9 by 9 sudoku grid as long as it contains at least 17 valid integers.
-Date Created: August 7th, 2020
-*/
-
 #include <iostream>
 #include <vector>
-#include <chrono>
 #include "grid.hpp"
 #include <fstream>
 using namespace std;
 
 string greet(); // Function for greeting user
 string noFile(ifstream &tStream); // Function for checking if the passed in file is empty and ask user for output file name.
-void goodbyeMessage(ostream &out); // Function for the end of the program.
 void gridCreator(ifstream &tStream, int pGrid[9][9], ostream &out); // Function to create grid
 void addData(string line, vector<int> &lineHolder, ostream &out); // Function that will be called by gridCreator() to add data to the grid.
 void validRange(string &userInput, vector<int> &lineHolder, int validStart, int validEnd, ostream &out); // Function that checks if passed in data is in the valid range of 1-9.
@@ -28,45 +19,31 @@ int main() {
     int partialGrid[9][9] = {0};
     int numDiff = 0; // Number of different possible solutions
     
-    auto startTime = chrono::high_resolution_clock::now(); // Start tracking time
     gridCreator(tStream, partialGrid, out);
     Grid sudokuGrid(partialGrid);
 
     auto solBeginningTime = chrono::high_resolution_clock::now(); // Track time to calculate solution
     if (sudokuGrid.solveGrid(randomRange, out, true)) {
-        cout << "\n*****PRINTING FINAL GRID*****\n";
         out << "\n*****PRINTING FINAL GRID*****\n";
         sudokuGrid.printGrid(out); // If the grid can be solved, print it out
         numDiff++;
     }
 
     else {
-        cout << "Agh! That’s a bit too tough for me. I couldn’t find a solution\n";
         out << "Agh! That’s a bit too tough for me. I couldn’t find a solution\n";
         return 0;
     }
 
-    auto endSolTime = chrono::high_resolution_clock::now(); // Stop tracking time for solution
-    auto startPartialTime = chrono::high_resolution_clock::now(); // Start tracking time
 
     numDiff = moreSolutions(randomRange, out, partialGrid, sudokuGrid);
-    
-    auto endTime = chrono::high_resolution_clock::now();
-    auto totalTime = chrono::duration_cast<chrono::nanoseconds>(endTime - startTime);
-    auto pTime = chrono::duration_cast<chrono::nanoseconds>(endTime - startPartialTime);
-    auto solTime = chrono::duration_cast<chrono::nanoseconds>(endSolTime - solBeginningTime);
 
-    sudokuGrid.printStats(numDiff, out, solTime.count(), pTime.count(), totalTime.count());
+    sudokuGrid.printStats(numDiff, out);
 
-    goodbyeMessage(out);
+    out << "Come on! That was too easy! Give me a better challenge!\n";
 
     return 0;
 }
 
-
-//Description: Function greets user and asks them to input file name.
-//Pre-condition: None
-//Post-condition: The user will be greeted and asked to enter the file name.
 
 string greet() {
     string fileName;
@@ -77,10 +54,6 @@ string greet() {
     cout << ".....Checking.......\n\n";
     return fileName;
 }
-
-//Description: Function checks for empty file and gets the name of the output file..
-//Pre-condition: The name of the file to be checked
-//Post-condition: Exit program if the file is empty, otherwise, continue running the program and return the name of the output file.
 
 string noFile(ifstream &tStream) {
     /* Check to see if function's next integer value is equal to the eof.*/
@@ -101,39 +74,40 @@ string noFile(ifstream &tStream) {
 
 }
 
-//Description: Function gives goodybe message to user
-//Pre-condition: None
-//Post-condition: The user will know the program will end.
 
-void goodbyeMessage(ostream &out) {
-    cout << "Come on! That was too easy! Give me a better challenge!\n";
-    out << "Come on! That was too easy! Give me a better challenge!\n";
-}
-
-//Description: Function copies the values from the inputted file and places them into the passed in array
-//Pre-condition: The file exists and can be read in. Paramaters passed in are valid and the passed in array is set to 0.
-//Post-condition: The passed in array will be filled with 0's or the values passed in from the inputted file.
 
 void gridCreator(ifstream &tStream, int pGrid[9][9], ostream &out) {
     string line;
     int row = 0;
     int col = 0;
     int gridVal = 0;
+    int numHints = 0; // Track the number of hints
     vector<int> lineHolder;
-
     while (getline(tStream, line)) {
+        numHints++;
+        if (numHints > 81) {
+            out << "Too much data! " << numHints << " is not sufficient!"; // Check immediately if there are more than 81 values. Since only a 9 by 9 array is used, 82 or more values will cause an error.
+            out.flush(); // Flush the ostream so the message gets outputted to the output file
+            exit(EXIT_FAILURE);
+        }
+        
         addData(line, lineHolder, out);
+        
         row = lineHolder[0];
         col = lineHolder[1];
         gridVal = lineHolder[2];
         pGrid[row][col] = gridVal; // At the row and col, set the value to the grid val.
         lineHolder.clear(); // Clear the vector so it can be used again.
     }
+    
+    if (numHints < 17) {
+        out << "Not enough data! " << numHints << " is not sufficient!";
+        out.flush(); // Flush the ostream so the message gets outputted to the output file
+        exit(EXIT_FAILURE);
+    }
+    
 }
 
-//Description: Function tries to add the inputted value to a vector.
-//Pre-condition: The passed in string is only one line from the input file.
-//Post-condition: The passed in vector will be filled with 3 values (row, col, and value) if it is valid.
 
 void addData(string line, vector<int> &lineHolder, ostream &out) {
     string newInput = "";
@@ -155,10 +129,6 @@ void addData(string line, vector<int> &lineHolder, ostream &out) {
     }
 }
 
-//Description: Function checks if the passed in value is valid.
-//Pre-condition: The passed in paramaters for the range are valid, a one line string is passed in.
-//Post-condition: The value will be added to the vector if it is valid. Otherwise, an error message will be returned.
-
 void validRange(string &userInput, vector<int> &lineHolder, int validStart, int validEnd, ostream &out) {
     try {
         if (stoi(userInput) > validStart && stoi(userInput) < validEnd) {
@@ -166,8 +136,6 @@ void validRange(string &userInput, vector<int> &lineHolder, int validStart, int 
         }
 
         else {
-            cout << "\'" << stoi(userInput) << "\' is not in the valid range of numbers!\n";
-            cout << "WILL NOW TERMINATE THE PROGRAM!\n";
             out << "\'" << stoi(userInput) << "\' is not in the valid range of numbers!\n";
             out << "WILL NOW TERMINATE THE PROGRAM!\n";
             out.flush(); // Flush the ostream so the message gets outputted to the output file
@@ -177,8 +145,6 @@ void validRange(string &userInput, vector<int> &lineHolder, int validStart, int 
     }
 
     catch (...) {
-        cout << "You entered an invalid character!\n";
-        cout << "WILL NOW TERMINATE THE PROGRAM!";
         out << "You entered an invalid character!\n";
         out << "WILL NOW TERMINATE THE PROGRAM!\n";
         out.flush(); // Flush the ostream so the message gets outputted to the output file
@@ -201,7 +167,6 @@ int moreSolutions(vector<int> randomRange, ostream &out, int partialGrid[9][9], 
         randomRange.erase(randomRange.begin());
         randomRange.push_back(tempHold); // Change the order of the vector so that numbers in different orders will try to be added
         if (temp.solveGrid(randomRange, out, false) && sudokuGrid.notTheSame(sudokuGrid, temp, uniqueChecker)) {
-            cout << "\n*****ANOTHER SOLUTION HAS BEEN FOUND*****\n";
             out << "\n*****ANOTHER SOLUTION HAS BEEN FOUND*****\n";
             temp.printGrid(out); // If there is a new unique solution to the grid, print it
             uniqueChecker = temp; // Change the unique checker so that it holds the new unique solution
