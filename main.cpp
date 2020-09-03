@@ -14,7 +14,8 @@ int moreSolutions(vector<int> randomRange, ostream &out, int partialGrid[9][9], 
 int main() {
     string fileName =  greet(); // Call greet function, get file name;
     ifstream tStream(fileName);
-    ofstream out(noFile(tStream));
+    string outputFileName = noFile(tStream); 
+    ofstream out(outputFileName);
     vector<int> randomRange {1, 2, 3, 4, 5, 6, 7, 8, 9}; // Numbers that will try to be added to the grid
     int partialGrid[9][9] = {0};
     int numDiff = 0; // Number of different possible solutions
@@ -39,7 +40,8 @@ int main() {
 
     sudokuGrid.printStats(numDiff, out);
 
-    out << "Come on! That was too easy! Give me a better challenge!\n";
+    cout << "Go and check " << outputFileName << " for the solution." << endl;
+    cout << "Come on! That was too easy! Give me a better challenge!\n";
 
     return 0;
 }
@@ -71,7 +73,6 @@ string noFile(ifstream &tStream) {
     cout << "File name: ";
     cin >> fileName;
     return fileName;
-
 }
 
 

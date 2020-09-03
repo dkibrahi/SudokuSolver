@@ -12,15 +12,14 @@ using namespace std;
 class Grid {
     public:
         Grid(int gridVal[9][9]);
-        bool selectUnassignedLocation(int &rowVal, int &colVal);
-        bool usedInRow(int rowVal, int numToCheck);
-        bool usedInCol(int colVal, int numToCheck);
-        bool usedInSubGrid(int firstRow, int firstCol, int numToCheck);
-        bool validToPlace(int rowVal, int colVal, int numToCheck);
-        bool solveGrid(vector<int> numHolder, ostream &out, bool shouldPrint);
-        void printGrid(ostream &out);
-        int numGridsToPrint();
-        bool notTheSame(Grid s1, Grid s2, Grid s3);
+        bool findEmptyLocation(int &rowVal, int &colVal); // Scans through the sudoku grid to see if there are any empty spots
+        bool usedInRow(int rowVal, int numToCheck); // Checks to see if a possible solution has already been used in the current row.
+        bool usedInCol(int colVal, int numToCheck); // Checks to see if a possible solution has already been used in the current column.
+        bool usedInSubGrid(int firstRow, int firstCol, int numToCheck); // Checks to see if a possible solution has already been used in the current subgrid.
+        bool canPlace(int rowVal, int colVal, int numToCheck); // A simple method that calls on the previous boolean functions to see if the possible solution can be placed.
+        bool solveGrid(vector<int> numHolder, ostream &out, bool shouldPrint); // Method that uses backtracking to fill up values in the grid
+        void printGrid(ostream &out); // Method that prints out values in the sudoku grid.
+        bool notTheSame(Grid s1, Grid s2, Grid s3); // Method to check find unique solutions to a grid.
         void printStats(int numUniqueSolutions, ostream &out); // Function to print metrics regarding the efficiency of the program.
     private:
         int sGrid[9][9] = {0};
@@ -39,7 +38,7 @@ Grid::Grid(int gridVal[9][9]) {
 
 
 
-bool Grid::selectUnassignedLocation(int &rowVal, int &colVal) {
+bool Grid::findEmptyLocation(int &rowVal, int &colVal) {
     for (rowVal = 0; rowVal < 9; rowVal++) {
         for (colVal = 0; colVal < 9; colVal++) {
             if (sGrid[rowVal][colVal] == 0) {
@@ -92,26 +91,19 @@ bool Grid::usedInSubGrid(int firstRow, int firstCol, int numToCheck) {
 }
 
 
-bool Grid::validToPlace(int rowVal, int colVal, int numToCheck) {
+bool Grid::canPlace(int rowVal, int colVal, int numToCheck) {
     return !usedInRow(rowVal, numToCheck) && !usedInCol(colVal, numToCheck) && !usedInSubGrid(rowVal - rowVal % 3, colVal - colVal % 3, numToCheck) && sGrid[rowVal][colVal] == 0;
 }
 
 
 bool Grid::solveGrid(vector<int> numHolder, ostream &out, bool shouldPrint) {
     int rowVal, colVal;
-    if (!selectUnassignedLocation(rowVal, colVal))
+    if (!findEmptyLocation(rowVal, colVal))
         return true; // If there are no unassigned values, return true
     
     for (int num = 0; num < 9; num++) {
-        if (shouldPrint && numGridsToPrint() > numTimes) {
-            numTimes++;
-            cout << "\n" << "Another subgrid has been completed!\n" << "*****PRINTING GRID #" << numTimes << " *****\n";
-            out << "\n" << "Another subgrid has been completed!\n" << "*****PRINTING GRID #" << numTimes << " *****\n";
-            printGrid(out);
-        }
-        
         numComparrisons++;
-        if (validToPlace(rowVal, colVal, numHolder[num])) {
+        if (canPlace(rowVal, colVal, numHolder[num])) {
             sGrid[rowVal][colVal] = numHolder[num]; // If the number is valid to place, add it to the grid.
             if (solveGrid(numHolder, out, shouldPrint))
                 return true;
@@ -131,10 +123,8 @@ void Grid::printGrid(ostream &out) {
             out << "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n";
         }
         
-        cout << "⎢ ";
         out << "⎢ ";
         for (int colVal = 0; colVal < 9; colVal++) {
-            cout << sGrid[rowVal][colVal];
             out << sGrid[rowVal][colVal];
             if ((colVal + 1) % 3 == 0) {
                 out << " ⎢ ";
@@ -156,41 +146,6 @@ void Grid::printGrid(ostream &out) {
 
 }
 
-
-int Grid::numGridsToPrint() {
-    int rowVal = 0; // Track the current row value
-    int maxRow = 3; // Track how large the row value can be
-    int colVal = 0; // Track the current col value
-    int maxCol = 3; // Track how large the col value can be
-    int numIt = 0; // Keep track of the number of iterations
-    while (numIt < 9) {
-        for (; rowVal < maxRow; rowVal++) {
-            for (; colVal < maxCol; colVal++) {
-                if (sGrid[rowVal][colVal] == 0)
-                    return numIt;
-            }
-    
-            if (rowVal + 1 < maxRow)
-                colVal -= 3; // If the row value is going to be equal to the max row, change the colval so the row under the column can be printed.
-        }
-    
-        if (colVal == 9) {
-            colVal = 0; // Once the entire column has been traversed, reset the col value
-            maxRow += 3; // Increase the rowvalue so the next row can be read in.
-            maxCol = 3;
-        }
-    
-        else if (rowVal % 3 == 0) {
-            rowVal -= 3; // If the entire subset of row has been iterated over, move onto the next subgrid.
-            maxCol += 3;
-        }
-    
-        numIt++;
-    
-    }
-
-    return numIt;
-}
 
 
 bool Grid::notTheSame(Grid original, Grid currentGrid, Grid holder) {
