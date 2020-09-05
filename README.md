@@ -8,8 +8,9 @@ For example, a sample input could be 0 0 3. This would mean on row 0, column 0, 
 ![Correct formatting](/images/correctFormat.png)
 
 
-In the .txt file, seperate each value by one line. 
 
 
 
-Have the input file have at least 17 of these values for the grid to be solved. Enjoy!
+Then, in the .txt file, seperate each value by one line (look at sample input file and output file). Since sudoku's need at least 17 values to be able to be solved, you will need 17 or more values in the .txt file. 
+
+That's it! Enjoy!
