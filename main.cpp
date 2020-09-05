@@ -23,7 +23,6 @@ int main() {
     gridCreator(tStream, partialGrid, out);
     Grid sudokuGrid(partialGrid);
 
-    auto solBeginningTime = chrono::high_resolution_clock::now(); // Track time to calculate solution
     if (sudokuGrid.solveGrid(randomRange, out, true)) {
         out << "\n*****PRINTING FINAL GRID*****\n";
         sudokuGrid.printGrid(out); // If the grid can be solved, print it out
@@ -31,6 +30,7 @@ int main() {
     }
 
     else {
+        cout << "Agh! That’s a bit too tough for me. I couldn’t find a solution\n";
         out << "Agh! That’s a bit too tough for me. I couldn’t find a solution\n";
         return 0;
     }
