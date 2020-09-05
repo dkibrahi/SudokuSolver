@@ -5,7 +5,7 @@ To use the solver, simply create a .txt file. In this .txt file, have each of su
 
 For example, a sample input could be 0 0 3. This would mean on row 0, column 0, there is a value of 3. 
 
-![Correct formatting](/Users/SuperGaming/SudokuSolver/images/correctFormat.png)
+![Correct formatting](/images/correctFormat.png)
 
 
 In the .txt file, seperate each value by one line. 
