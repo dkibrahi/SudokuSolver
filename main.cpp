@@ -14,7 +14,7 @@ int moreSolutions(vector<int> randomRange, ostream &out, int partialGrid[9][9], 
 int main() {
     string fileName =  greet(); // Call greet function, get file name;
     ifstream tStream(fileName);
-    string outputFileName = noFile(tStream); 
+    string outputFileName = noFile(tStream);
     ofstream out(outputFileName);
     vector<int> randomRange {1, 2, 3, 4, 5, 6, 7, 8, 9}; // Numbers that will try to be added to the grid
     int partialGrid[9][9] = {0};
@@ -181,4 +181,3 @@ int moreSolutions(vector<int> randomRange, ostream &out, int partialGrid[9][9], 
     return numDiff;
     
 }
-
