@@ -1,4 +1,4 @@
-I have created a basic sudoko solver in C++! This sudoku solver will be able to solve any easy, meduim, or difficult sudokus. 
+I have created a basic sudoko solver in C++! This sudoku solver will be able to solve any easy, medium, or difficult sudokus. 
 
 
 To use the solver, simply create a .txt file. In this .txt file, have each of sudoko grid values paired with their row and column value. 
